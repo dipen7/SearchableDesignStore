@@ -47,7 +47,6 @@ bld/
 *.sln.iml
 
 # Web files
-wwwroot/
 node_modules/
 bower_components/
 
