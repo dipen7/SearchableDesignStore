@@ -1,0 +1,141 @@
+﻿@{
+    ViewData["Title"] = "Products";
+}
+
+<div class="text-center">
+    <h2>Products</h2>
+    @Html.AntiForgeryToken()
+    <p>
+        @Html.ActionLink("Create New Product", "Create") | @Html.ActionLink("Import Products", "Upload")
+    </p>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+    <table id="ProductsTable" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock Quantity</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+    </table>
+
+</div>
+
+@section Styles {
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+    
+    <link hcref="https://cdn.datatables.net/buttons/2.4.c1/css/buttons.dataTables.min.css" rel="stylesheet" />
+    <style>
+        .view-btn {
+            background-color: #17a2b8;
+        }
+
+        .edit-btn {
+            background-color: #ffc107;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+        }
+    </style>
+}
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    
+    <!-- DataTables Buttons -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+<!-- JSZip and pdfmake for Excel and PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#ProductsTable').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ],
+                "ajax": {
+                    "url": "@Url.Action("GetProducts", "Product")",
+                    "type": "GET",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+                        if (json.error) {
+                            alert("Something went wrong while fetching data");
+                            return [];
+                        }
+                        return json.data;
+                    }
+                },
+                "columns": [
+                    { "data": "productId" },
+                    { "data": "productName" },
+                    { "data": "category" },
+                    { "data": "price" },
+                    { "data": "stockQuantity" },
+                    {
+                        title: "Actions",
+                        orderable: false,
+                        searchable: false,
+                        render: function(data, type, row, meta) {
+                            return `
+                                <button class="view-btn" data-id="${row.productId}">View</button>
+                                <button class="edit-btn" data-id="${row.productId}">Edit</button>
+                                <button class="delete-btn" data-id="${row.productId}">Delete</button>
+                            `;
+                        }
+                    }
+                ]
+            });
+        });
+        $('#ProductsTable').on('click', '.view-btn', function () {
+            const id = $(this).data('id');
+            window.location.href = `/Product/Details/${id}`;
+        });
+
+        $('#ProductsTable').on('click', '.edit-btn', function () {
+            const id = $(this).data('id');
+            window.location.href = `/Product/Edit/${id}`;
+        });
+
+        $('#ProductsTable').on('click', '.delete-btn', function () {
+            const id = $(this).data('id');
+            if (confirm('Are you sure you want to delete this record?')) {
+                $.ajax({
+                    url: `/Product/Delete/${id}`,
+                    type: 'POST',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        alert('Record deleted successfully!');
+                        $('#ProductsTable').DataTable().ajax.reload();
+                    },
+                    error: function () {
+                        alert('Error deleting record.');
+                    }
+                });
+            }
+        });
+    </script>
+}

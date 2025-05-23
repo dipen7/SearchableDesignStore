@@ -1,0 +1,32 @@
+﻿@using StoreManager.ViewModels.Product.Excel
+@model ExcelResult
+
+@{
+    ViewData["Title"] = "Products Upload";
+}
+
+<h2>Products Upload</h2>
+@if ( Model.ReadError )
+{
+    <div class="alert alert-danger">
+        excel file cannot be read.
+    </div>
+}
+@if ( Model.DbError )
+{
+    <div class="alert alert-danger">
+        error adding to database.
+    </div>
+}
+@if(Model.FailedIndices.Count>0)
+{
+    <div class="alert alert-danger">
+        row indices @string.Join(",", Model.FailedIndices) could not be inserted due to data error.
+    </div>
+}
+
+<form asp-action="Upload" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="file" name="excelFile" accept=".xlsx,.xls,.csv" />
+    <button type="submit">Upload</button>
+</form>

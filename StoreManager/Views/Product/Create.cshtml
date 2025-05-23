@@ -1,0 +1,103 @@
+﻿@using StoreManager.ViewModels.Product
+@model ProductWithImage
+@{
+    ViewData["Title"] = "Create Product";
+}
+<h2>Create Product</h2>
+
+@using (Html.BeginForm("Create", "Product", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.ProductName, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.ProductName, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.ProductName)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.Category, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.Category, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Category)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.Price, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.Price, new { @class = "form-control", type = "number", step = "0.01" })
+                @Html.ValidationMessageFor(m => m.Price)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.StockQuantity, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.StockQuantity, new { @class = "form-control", type = "number" })
+                @Html.ValidationMessageFor(m => m.StockQuantity)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.SupplierEmail, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.SupplierEmail, new { @class = "form-control", type = "email" })
+                @Html.ValidationMessageFor(m => m.SupplierEmail)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.ManufacturedDate, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.ManufacturedDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                @Html.ValidationMessageFor(m => m.ManufacturedDate)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.ExpiryDate, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.ExpiryDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                @Html.ValidationMessageFor(m => m.ExpiryDate)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.Description, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(m => m.Description, 4, 50, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Description)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.IsActive, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.CheckBoxFor(m => m.IsActive)
+                @Html.ValidationMessageFor(m => m.IsActive)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.ProductImage, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <input type="file" name="ProductImage" accept="image/*" />
+                @Html.ValidationMessageFor(m => m.ProductImage)
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,50 @@
+﻿@{
+    ViewData["Title"] = "Employees";
+}
+
+<div class="text-center">
+    <h2>Employees</h2>
+    <table id="EmployeesTable" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Salary</th>
+                <th>Age</th>
+            </tr>
+        </thead>
+    </table>
+
+</div>
+
+@section Styles {
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+}
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#EmployeesTable').DataTable({
+                "ajax": {
+                    "url": "@Url.Action("GetEmployees", "Employee")",
+                    "type": "GET",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+                        if (json.error) {
+                            alert("Something went wrong while fetching data");
+                            return [];
+                        }
+                        return json.data;
+                    }
+                },
+                "columns": [
+                    { "data": "id" },
+                    { "data": "employeeName" },
+                    { "data": "employeeSalary" },
+                    { "data": "employeeAge" }
+                ]
+            });
+        });
+    </script>
+}

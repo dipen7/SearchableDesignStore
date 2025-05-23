@@ -1,0 +1,5 @@
+ProductName,"Description,","SupplierEmail,","Category,","ManufacturedDate,","StockQuantity,","IsActive,",CreatedDate,"Price,",expirydate
+prod1,,prod1@email.com,cate,12/12/2020,12,q,12/12/2020,0,
+apple,mobile phone,apple@gmail.com,mobile,12/12/2020,12,TRUE,12/12/2020,1212,12/12/2020
+pineapple,fruit,pineapple@gmail.com,fruit,12/12/2020,1,TRUE,12/12/2020,1,
+,,,,,,,,,

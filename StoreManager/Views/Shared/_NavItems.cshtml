@@ -1,0 +1,24 @@
+﻿@using Microsoft.Extensions.Configuration
+@using Microsoft.AspNetCore.Identity
+@using StoreManager.Constants
+@inject SignInManager<AppUser> signInManager
+@inject IConfiguration Configuration
+@{
+    var MenuItems = Configuration.GetSection("MenuItems").Get<List<MenuItem>>();
+    var IsSignedIn = signInManager.IsSignedIn(User);
+    var IsAdmin = User.IsInRole(UserRoles.Admin);
+    var IsMember = User.IsInRole(UserRoles.Member);
+}
+@if (IsSignedIn)
+{
+    @foreach (var MenuItem in MenuItems)
+    {
+        @if((MenuItem.IsMember && IsMember) || (MenuItem.IsAdmin && IsAdmin))
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="@MenuItem.Controller" asp-action="@MenuItem.Action">@MenuItem.DisplayName</a>
+            </li>
+        }
+        
+    }
+}

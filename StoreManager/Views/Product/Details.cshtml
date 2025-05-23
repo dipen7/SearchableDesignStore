@@ -1,0 +1,59 @@
+﻿@using StoreManager.ViewModels.Product
+@model ProductWithImage
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<h2>Product Details</h2>
+
+<div class="form-horizontal">
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>Product Name</dt>
+        <dd>@Model.ProductName</dd>
+
+        <dt>Category</dt>
+        <dd>@Model.Category</dd>
+
+        <dt>Price</dt>
+        <dd>@Model.Price.ToString("C")</dd>
+
+        <dt>Stock Quantity</dt>
+        <dd>@Model.StockQuantity</dd>
+
+        <dt>Supplier Email</dt>
+        <dd>@Model.SupplierEmail</dd>
+
+        <dt>Manufactured Date</dt>
+        <dd>@Model.ManufacturedDate.ToShortDateString()</dd>
+
+        <dt>Expiry Date</dt>
+        <dd>@Model.ExpiryDate?.ToShortDateString()</dd>
+
+        <dt>Description</dt>
+        <dd>@Model.Description</dd>
+
+        <dt>Active</dt>
+        <dd>@(Model.IsActive ? "Yes" : "No")</dd>
+
+        <dt>Created Date</dt>
+        <dd>@Model.CreatedDate.ToShortDateString()</dd>
+
+        <dt>Product Image</dt>
+        <dd>
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <img src="/@Model.ImageUrl" alt="Product Image" style="max-height: 200px;" />
+            }
+            else
+            {
+                <span>No image available</span>
+            }
+        </dd>
+    </dl>
+
+    <p>
+        @Html.ActionLink("Edit", "Edit", new { id = Model.ProductId }, new { @class = "btn btn-warning" }) |
+        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-secondary" })
+    </p>
+</div>

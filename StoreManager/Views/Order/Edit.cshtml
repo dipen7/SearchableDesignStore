@@ -1,0 +1,214 @@
+﻿@using System.Text.Json;
+@model StoreManager.ViewModels.Order.OrderVM
+
+@{
+    ViewBag.Title = "Edit Order";
+}
+
+<h2>Edit Order</h2>
+
+@using (Html.BeginForm("Edit", "Order", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.OrderID)
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.OrderDate, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.OrderDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.CustomerName, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.CustomerEmail, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.CustomerEmail, new { @class = "form-control" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.OrderStatus, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.CheckBoxFor(m => m.OrderStatus)
+            </div>
+        </div>
+
+        <h4>Order Details</h4>
+        <table class="table" id="order-details-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>SubTotal</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="order-details-body">
+                @for (int i = 0; i < Model.OrderDetails.Count; i++)
+                {
+                    var detail = Model.OrderDetails[i];
+
+                    <tr data-index="@i">
+                        <td>
+                            <select name="OrderDetails[@i].ProductID" class="form-control product-select" data-index="@i" onchange="updateProductInfo(this, @i)">
+                                <option value="">Select Product</option>
+                            </select>
+                            @Html.Hidden($"OrderDetails[@i].OrderDetailID", Model.OrderDetails[i].OrderDetailID)
+                        </td>
+                        <td>
+                            <input type="number" name="OrderDetails[@i].Quantity" value="@Model.OrderDetails[i].Quantity" class="form-control" min="1" onchange="updateSubTotal(@i)" />
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" id="price-@i" disabled />
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" id="stock-@i" disabled />
+                        </td>
+                        <td>
+                            <input type="number" name="OrderDetails[@i].SubTotal" id="subtotal-@i" value="@Model.OrderDetails[i].SubTotal.ToString("F2")" step="0.01" class="form-control" readonly />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger" onclick="removeRow(this)">Remove</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <button type="button" class="btn btn-default" onclick="addRow()">Add Row</button>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.TotalAmount, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.TotalAmount, new { @class = "form-control", @readonly = "readonly", type = "number", step = "0.01", id = "TotalAmount" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+<script>
+    let rowIndex = @Model.OrderDetails.Count;
+    let products = @Html.Raw(ViewBag.ProductsJson);
+    let selectedProductIds = @Html.Raw(JsonSerializer.Serialize(Model.OrderDetails.Select(d => d.ProductID).ToList()));
+
+    function populateProductDropdowns() {
+        document.querySelectorAll('.product-select').forEach((select, i) => {
+            let selectedId = selectedProductIds[i];
+            products.forEach(p => {
+                let option = new Option(p.ProductName, p.ProductID);
+                if (p.ProductID === selectedId) {
+                    option.selected = true;
+                }
+                select.add(option);
+            });
+            updateProductInfo(select, i);
+        });
+    }
+
+    function addRow() {
+        let tableBody = document.getElementById("order-details-body");
+        let row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>
+                <select name="OrderDetails[${rowIndex}].ProductID" class="form-control" onchange="updateProductInfo(this, ${rowIndex})">
+                    <option value="">Select Product</option>
+                    ${products.map(p => `<option value="${p.ProductID}">${p.ProductName}</option>`).join('')}
+                </select>
+            </td>
+            <td>
+                <input type="number" name="OrderDetails[${rowIndex}].Quantity" class="form-control" min="1" value="1" onchange="updateSubTotal(${rowIndex})" />
+            </td>
+            <td>
+                <input type="text" class="form-control" id="price-${rowIndex}" disabled />
+            </td>
+            <td>
+                <input type="text" class="form-control" id="stock-${rowIndex}" disabled />
+            </td>
+            <td>
+                <input type="number" name="OrderDetails[${rowIndex}].SubTotal" id="subtotal-${rowIndex}" step="0.01" class="form-control" readonly />
+            </td>
+            <td>
+                <button type="button" class="btn btn-danger" onclick="removeRow(this)">Remove</button>
+            </td>
+        `;
+
+        tableBody.appendChild(row);
+        rowIndex++;
+    }
+
+    function updateProductInfo(select, index) {
+        const product = products.find(p => p.ProductID == select.value);
+        if (product) {
+            document.getElementById(`price-${index}`).value = product.Price;
+            document.getElementById(`stock-${index}`).value = product.StockQuantity;
+            updateSubTotal(index);
+        }
+    }
+
+    function updateSubTotal(index) {
+        const quantityInput = document.querySelector(`input[name='OrderDetails[${index}].Quantity']`);
+        const quantity = quantityInput ? parseInt(quantityInput.value) : 0;
+
+        const productSelect = document.querySelector(`select[name='OrderDetails[${index}].ProductID']`);
+        const product = products.find(p => p.ProductID == productSelect.value);
+
+        const subtotalField = document.getElementById(`subtotal-${index}`);
+
+        if (product && quantity > 0) {
+            const subtotal = parseFloat(product.Price) * quantity;
+            subtotalField.value = subtotal.toFixed(2);
+        } else {
+            subtotalField.value = "0.00";
+        }
+
+        calculateTotalAmount();
+    }
+
+    function calculateTotalAmount() {
+        let total = 0;
+        const subtotals = document.querySelectorAll("[id^='subtotal-']");
+
+        subtotals.forEach(subtotalField => {
+            const val = parseFloat(subtotalField.value);
+            if (!isNaN(val)) {
+                total += val;
+            }
+        });
+
+        const totalField = document.getElementById("TotalAmount");
+        if (totalField) {
+            totalField.value = total.toFixed(2);
+        }
+    }
+
+    function removeRow(button) {
+        button.closest("tr").remove();
+        calculateTotalAmount();
+    }
+
+    window.onload = function () {
+        populateProductDropdowns();
+        calculateTotalAmount();
+    };
+</script>
+}
